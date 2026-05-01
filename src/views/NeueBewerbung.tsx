@@ -1,5 +1,13 @@
 import { useNavigate } from 'react-router-dom';
-import { bewerbungErstellen, type NeueBewerbungEingabe } from '../data/storage';
+import type { Reminder } from '../types';
+import {
+  bewerbungAktualisieren,
+  bewerbungErstellen,
+  ladeAppData,
+  type NeueBewerbungEingabe,
+} from '../data/storage';
+import { autoErinnerungenFuerStatus } from '../lib/coaching';
+import { reminderPlanen } from '../lib/notifications';
 import { BewerbungsFormular } from './BewerbungsFormular';
 
 function heuteAlsISO(): string {
@@ -28,6 +36,22 @@ export function NeueBewerbung() {
 
   function handleSpeichern(eingabe: NeueBewerbungEingabe) {
     const neue = bewerbungErstellen(eingabe);
+
+    const daten = ladeAppData();
+    const autoReminders: Reminder[] = autoErinnerungenFuerStatus(
+      neue.status,
+      neue.firma,
+      daten.einstellungen.reminder_default_tage
+    ).map((r) => ({ ...r, id: crypto.randomUUID() }));
+
+    if (autoReminders.length > 0) {
+      const aktualisiert = { ...neue, reminders: autoReminders };
+      bewerbungAktualisieren(aktualisiert);
+      autoReminders.forEach((r) =>
+        reminderPlanen(r, { id: aktualisiert.id, firma: aktualisiert.firma })
+      );
+    }
+
     navigate(`/bewerbung/${neue.id}`);
   }
 

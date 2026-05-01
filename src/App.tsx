@@ -7,6 +7,7 @@ import { BewerbungBearbeiten } from './views/BewerbungBearbeiten';
 import { Einstellungen } from './views/Einstellungen';
 import { Impressum } from './views/Impressum';
 import { Datenschutz } from './views/Datenschutz';
+import { Faq } from './views/Faq';
 import { ladeAppData } from './data/storage';
 import { alleRemindersNeuPlanen } from './lib/notifications';
 
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/einstellungen" element={<Einstellungen />} />
         <Route path="/impressum" element={<Impressum />} />
         <Route path="/datenschutz" element={<Datenschutz />} />
+        <Route path="/faq" element={<Faq />} />
       </Routes>
     </BrowserRouter>
   );

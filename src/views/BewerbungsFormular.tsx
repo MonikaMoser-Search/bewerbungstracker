@@ -77,7 +77,15 @@ export function BewerbungsFormular({
         </Link>
       </header>
 
-      <h1 className="text-2xl font-semibold text-stone-900 mb-6">{titel}</h1>
+      <h1 className="text-2xl font-semibold text-stone-900 mb-2">{titel}</h1>
+      {modus === 'erstellen' && (
+        <p className="text-sm text-stone-600 mb-6">
+          Pflicht sind nur <strong>Firma</strong> und{' '}
+          <strong>Position</strong>. Alles andere kannst du jetzt eintragen oder
+          später ergänzen.
+        </p>
+      )}
+      {modus === 'bearbeiten' && <div className="mb-6" />}
 
       <form onSubmit={handleSpeichern} className="space-y-5" noValidate>
         <section className="bg-white rounded-lg border border-stone-200 p-5 space-y-4">

@@ -155,7 +155,10 @@ export function BewerbungsListe() {
         <span className="block mt-1 text-stone-400">
           Deine Daten bleiben bei dir — wir sehen nichts davon.
         </span>
-        <nav className="mt-3 flex justify-center gap-4">
+        <nav className="mt-3 flex justify-center gap-4 flex-wrap">
+          <Link to="/faq" className="hover:text-stone-700 hover:underline">
+            FAQ
+          </Link>
           <Link to="/impressum" className="hover:text-stone-700 hover:underline">
             Impressum
           </Link>
