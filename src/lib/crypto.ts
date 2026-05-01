@@ -16,7 +16,7 @@ async function ableiteSchluessel(passwort: string, salt: Uint8Array): Promise<Cr
   const passwortBytes = new TextEncoder().encode(passwort);
   const baseKey = await crypto.subtle.importKey(
     'raw',
-    passwortBytes,
+    passwortBytes as BufferSource,
     'PBKDF2',
     false,
     ['deriveKey']
@@ -24,7 +24,7 @@ async function ableiteSchluessel(passwort: string, salt: Uint8Array): Promise<Cr
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt,
+      salt: salt as BufferSource,
       iterations: KDF_ITERATIONS,
       hash: 'SHA-256',
     },
@@ -44,9 +44,9 @@ export async function verschluesseln(
   const key = await ableiteSchluessel(passwort, salt);
   const klartextBytes = new TextEncoder().encode(klartext);
   const ciphertext = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
+    { name: 'AES-GCM', iv: iv as BufferSource },
     key,
-    klartextBytes
+    klartextBytes as BufferSource
   );
   return {
     format: FORMAT_NAME,
@@ -70,9 +70,9 @@ export async function entschluesseln(
   let klartextBytes: ArrayBuffer;
   try {
     klartextBytes = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv },
+      { name: 'AES-GCM', iv: iv as BufferSource },
       key,
-      ciphertext
+      ciphertext as BufferSource
     );
   } catch {
     throw new Error('Passwort falsch oder Datei beschädigt.');
