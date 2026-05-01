@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mm-orange: #F39C12;
+  --color-mm-orange-hover: #D87F0E;
+  --color-mm-orange-dark: #B36F00;
+  --color-mm-cream: #FDF1E1;
+  --color-mm-cream-soft: #FFF7EB;
+  --color-mm-brown: #5C3317;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #fafaf9;
+  color: #1c1917;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
