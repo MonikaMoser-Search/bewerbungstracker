@@ -4,6 +4,7 @@ export const demoAppData: AppData = {
   schema_version: 1,
   einstellungen: {
     coaching_aktiv: true,
+    auto_reminder_aktiv: true,
     reminder_default_tage: 10,
   },
   bewerbungen: [

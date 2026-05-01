@@ -104,6 +104,23 @@ const gruppen: FrageGruppe[] = [
           </>
         ),
       },
+      {
+        frage: 'Kann ich die automatischen Erinnerungen auslassen?',
+        antwort: (
+          <>
+            Ja. In den Einstellungen unter „Coaching" gibt es den Schalter{' '}
+            <strong>„Automatische Erinnerungen erstellen"</strong>. Wenn du den
+            ausschaltest, werden bei Status-Wechseln keine automatischen
+            Reminder mehr angelegt. Manuell hinzugefügte Erinnerungen (über das
+            „+ Hinzufügen" auf der Detail-Seite) bleiben davon unberührt.
+            <br />
+            <br />
+            Coaching-Tipps und Auto-Reminder sind übrigens zwei getrennte
+            Schalter — du kannst die Tipps mögen, aber die Reminder doof finden,
+            oder umgekehrt.
+          </>
+        ),
+      },
     ],
   },
   {

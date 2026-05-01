@@ -65,6 +65,7 @@ export type Bewerbung = {
 
 export type Einstellungen = {
   coaching_aktiv: boolean;
+  auto_reminder_aktiv: boolean;
   reminder_default_tage: number;
   letzter_export?: string;
 };

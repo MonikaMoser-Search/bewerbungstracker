@@ -38,11 +38,13 @@ export function NeueBewerbung() {
     const neue = bewerbungErstellen(eingabe);
 
     const daten = ladeAppData();
-    const autoReminders: Reminder[] = autoErinnerungenFuerStatus(
-      neue.status,
-      neue.firma,
-      daten.einstellungen.reminder_default_tage
-    ).map((r) => ({ ...r, id: crypto.randomUUID() }));
+    const autoReminders: Reminder[] = daten.einstellungen.auto_reminder_aktiv
+      ? autoErinnerungenFuerStatus(
+          neue.status,
+          neue.firma,
+          daten.einstellungen.reminder_default_tage
+        ).map((r) => ({ ...r, id: crypto.randomUUID() }))
+      : [];
 
     if (autoReminders.length > 0) {
       const aktualisiert = { ...neue, reminders: autoReminders };

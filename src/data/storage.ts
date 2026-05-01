@@ -15,6 +15,10 @@ export function ladeAppData(): AppData {
       console.warn('Unbekannte Schema-Version, lade Standard.');
       return leereAppData();
     }
+    parsed.einstellungen = {
+      auto_reminder_aktiv: true,
+      ...parsed.einstellungen,
+    };
     return parsed;
   } catch {
     return leereAppData();
@@ -30,6 +34,7 @@ export function leereAppData(): AppData {
     schema_version: 1,
     einstellungen: {
       coaching_aktiv: true,
+      auto_reminder_aktiv: true,
       reminder_default_tage: 10,
     },
     bewerbungen: [],

@@ -51,13 +51,16 @@ export function BewerbungsDetail() {
 
     const daten = ladeAppData();
     const coachingAktiv = daten.einstellungen.coaching_aktiv;
+    const autoReminderAktiv = daten.einstellungen.auto_reminder_aktiv;
     const reminderTage = daten.einstellungen.reminder_default_tage;
 
-    const neueAutoReminders: Reminder[] = autoErinnerungenFuerStatus(
-      neuerStatus,
-      bewerbung.firma,
-      reminderTage
-    ).map((r) => ({ ...r, id: crypto.randomUUID() }));
+    const neueAutoReminders: Reminder[] = autoReminderAktiv
+      ? autoErinnerungenFuerStatus(
+          neuerStatus,
+          bewerbung.firma,
+          reminderTage
+        ).map((r) => ({ ...r, id: crypto.randomUUID() }))
+      : [];
 
     const aktualisiert: Bewerbung = {
       ...bewerbung,

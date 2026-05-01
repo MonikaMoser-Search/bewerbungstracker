@@ -66,6 +66,13 @@ export function Einstellungen() {
     einstellungenAktualisieren({ coaching_aktiv: neuerWert });
   }
 
+  function handleAutoReminderUmschalten(neuerWert: boolean) {
+    if (!einstellungen) return;
+    const aktualisiert = { ...einstellungen, auto_reminder_aktiv: neuerWert };
+    setEinstellungen(aktualisiert);
+    einstellungenAktualisieren({ auto_reminder_aktiv: neuerWert });
+  }
+
   function handleReminderTageAendern(neuerWert: number) {
     if (!einstellungen) return;
     if (Number.isNaN(neuerWert) || neuerWert < 1 || neuerWert > 90) return;
@@ -294,6 +301,25 @@ export function Einstellungen() {
             </span>
             <span className="block text-xs text-stone-500 mt-0.5">
               Bei Status-Änderungen erscheinen kurze Hinweise aus der Personalberater-Praxis.
+            </span>
+          </span>
+        </label>
+
+        <label className="flex items-start gap-3 cursor-pointer mb-4">
+          <input
+            type="checkbox"
+            checked={einstellungen.auto_reminder_aktiv}
+            onChange={(e) => handleAutoReminderUmschalten(e.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-stone-400"
+          />
+          <span>
+            <span className="block text-sm font-medium text-stone-800">
+              Automatische Erinnerungen erstellen
+            </span>
+            <span className="block text-xs text-stone-500 mt-0.5">
+              Bei „Beworben" wird ein Reminder zum Nachfassen erstellt, bei
+              „Interview erledigt" eine Erinnerung für eine höfliche Nachfrage.
+              Manuelle Erinnerungen kannst du jederzeit selbst hinzufügen.
             </span>
           </span>
         </label>
