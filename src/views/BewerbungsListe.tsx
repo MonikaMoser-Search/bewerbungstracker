@@ -97,6 +97,7 @@ export function BewerbungsListe() {
 
   function counterAktion(): React.ReactNode {
     if (gesamt === 0) return null;
+
     if (statusFilter === 'Aktiv' && abgeschlossenCount > 0) {
       return (
         <>
@@ -111,7 +112,23 @@ export function BewerbungsListe() {
         </>
       );
     }
-    if (versteckt > 0 && statusFilter !== 'Aktiv') {
+
+    if (statusFilter === 'Alle' && abgeschlossenCount > 0 && !sucheNorm) {
+      return (
+        <>
+          {' · '}
+          <button
+            type="button"
+            onClick={() => setStatusFilter('Aktiv')}
+            className="text-mm-orange-dark hover:underline"
+          >
+            nur aktive anzeigen
+          </button>
+        </>
+      );
+    }
+
+    if (versteckt > 0 && statusFilter !== 'Aktiv' && statusFilter !== 'Alle') {
       return (
         <>
           {' · '}
@@ -128,6 +145,7 @@ export function BewerbungsListe() {
         </>
       );
     }
+
     return null;
   }
 
