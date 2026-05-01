@@ -15,9 +15,12 @@ export function ladeAppData(): AppData {
       console.warn('Unbekannte Schema-Version, lade Standard.');
       return leereAppData();
     }
+    const e = parsed.einstellungen as Partial<AppData['einstellungen']>;
     parsed.einstellungen = {
-      auto_reminder_aktiv: true,
-      ...parsed.einstellungen,
+      coaching_aktiv: e.coaching_aktiv ?? true,
+      auto_reminder_aktiv: e.auto_reminder_aktiv ?? true,
+      reminder_default_tage: e.reminder_default_tage ?? 10,
+      letzter_export: e.letzter_export,
     };
     return parsed;
   } catch {

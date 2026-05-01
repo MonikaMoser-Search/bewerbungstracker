@@ -74,7 +74,62 @@ export function BewerbungsListe() {
 
   const gesamt = bewerbungen.length;
   const sichtbar = gefiltert.length;
-  const filterAktiv = sichtbar !== gesamt;
+  const versteckt = gesamt - sichtbar;
+  const aktivCount = bewerbungen.filter(
+    (b) => !ABGESCHLOSSEN.includes(b.status)
+  ).length;
+  const abgeschlossenCount = gesamt - aktivCount;
+  const sucheNorm = suche.trim();
+
+  function counterText(): string {
+    if (gesamt === 0) return 'Keine Bewerbungen erfasst';
+    if (sucheNorm) return `${sichtbar} Treffer von ${gesamt}`;
+    if (statusFilter === 'Aktiv') {
+      return abgeschlossenCount > 0
+        ? `${sichtbar} aktive · ${abgeschlossenCount} abgeschlossen ausgeblendet`
+        : `${gesamt} ${gesamt === 1 ? 'Bewerbung' : 'Bewerbungen'}`;
+    }
+    if (statusFilter === 'Alle') {
+      return `${gesamt} ${gesamt === 1 ? 'Bewerbung' : 'Bewerbungen'}`;
+    }
+    return `${sichtbar} mit Status „${statusFilter}"`;
+  }
+
+  function counterAktion(): React.ReactNode {
+    if (gesamt === 0) return null;
+    if (statusFilter === 'Aktiv' && abgeschlossenCount > 0) {
+      return (
+        <>
+          {' · '}
+          <button
+            type="button"
+            onClick={() => setStatusFilter('Alle')}
+            className="text-mm-orange-dark hover:underline"
+          >
+            alle anzeigen
+          </button>
+        </>
+      );
+    }
+    if (versteckt > 0 && statusFilter !== 'Aktiv') {
+      return (
+        <>
+          {' · '}
+          <button
+            type="button"
+            onClick={() => {
+              setSuche('');
+              setStatusFilter('Aktiv');
+            }}
+            className="text-mm-orange-dark hover:underline"
+          >
+            Filter zurücksetzen
+          </button>
+        </>
+      );
+    }
+    return null;
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6">
@@ -82,11 +137,8 @@ export function BewerbungsListe() {
         <div>
           <h1 className="text-2xl font-semibold text-stone-900">Bewerbungstracker</h1>
           <p className="text-sm text-stone-500 mt-0.5">
-            {gesamt === 0
-              ? 'Keine Bewerbungen erfasst'
-              : filterAktiv
-                ? `${sichtbar} von ${gesamt} ${gesamt === 1 ? 'Bewerbung' : 'Bewerbungen'}`
-                : `${gesamt} ${gesamt === 1 ? 'Bewerbung' : 'Bewerbungen'}`}
+            {counterText()}
+            {counterAktion()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -120,6 +172,7 @@ export function BewerbungsListe() {
           setSuche={setSuche}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+          bewerbungen={bewerbungen}
         />
       )}
 
@@ -176,12 +229,25 @@ function FilterLeiste({
   setSuche,
   statusFilter,
   setStatusFilter,
+  bewerbungen,
 }: {
   suche: string;
   setSuche: (v: string) => void;
   statusFilter: StatusFilter;
   setStatusFilter: (s: StatusFilter) => void;
+  bewerbungen: Bewerbung[];
 }) {
+  const aktivCount = bewerbungen.filter(
+    (b) => !ABGESCHLOSSEN.includes(b.status)
+  ).length;
+  const proStatus = ALLE_STATUS.reduce<Record<Status, number>>(
+    (acc, s) => {
+      acc[s] = bewerbungen.filter((b) => b.status === s).length;
+      return acc;
+    },
+    {} as Record<Status, number>
+  );
+
   return (
     <div className="flex flex-col sm:flex-row gap-2 mb-4">
       <div className="relative flex-1">
@@ -208,12 +274,12 @@ function FilterLeiste({
         onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
         className="rounded-md border border-stone-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 sm:w-auto"
       >
-        <option value="Aktiv">Aktive Bewerbungen</option>
-        <option value="Alle">Alle Bewerbungen</option>
+        <option value="Aktiv">Aktive Bewerbungen ({aktivCount})</option>
+        <option value="Alle">Alle Bewerbungen ({bewerbungen.length})</option>
         <optgroup label="Nur Status">
           {ALLE_STATUS.map((s) => (
-            <option key={s} value={s}>
-              {s}
+            <option key={s} value={s} disabled={proStatus[s] === 0}>
+              {s} ({proStatus[s]})
             </option>
           ))}
         </optgroup>

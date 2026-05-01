@@ -16,12 +16,14 @@ import { autoErinnerungenFuerStatus, coachingTipps } from '../lib/coaching';
 import { reminderAbsagen, reminderPlanen } from '../lib/notifications';
 import { ErinnerungenSektion } from '../components/ErinnerungenSektion';
 import { InterviewsSektion } from '../components/InterviewsSektion';
+import { BestaetigungsDialog } from '../components/BestaetigungsDialog';
 
 export function BewerbungsDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [bewerbung, setBewerbung] = useState<Bewerbung | null | undefined>(undefined);
   const [coachingNachricht, setCoachingNachricht] = useState<string | null>(null);
+  const [loeschenDialogOffen, setLoeschenDialogOffen] = useState(false);
 
   useEffect(() => {
     const data = ladeAppData();
@@ -35,12 +37,8 @@ export function BewerbungsDetail() {
     return () => clearTimeout(timer);
   }, [coachingNachricht]);
 
-  function handleLoeschen() {
+  function handleLoeschenBestaetigt() {
     if (!bewerbung) return;
-    const bestaetigt = window.confirm(
-      `Bewerbung „${bewerbung.firma} – ${bewerbung.position}" wirklich löschen?\n\nDie Bewerbung wird unwiderruflich entfernt.`
-    );
-    if (!bestaetigt) return;
     bewerbung.reminders.forEach((r) => reminderAbsagen(r.id));
     bewerbungLoeschen(bewerbung.id);
     navigate('/');
@@ -185,6 +183,23 @@ export function BewerbungsDetail() {
         />
       )}
 
+      {loeschenDialogOffen && (
+        <BestaetigungsDialog
+          titel="Bewerbung löschen?"
+          beschreibung={
+            <>
+              Die Bewerbung <strong>„{bewerbung.firma} – {bewerbung.position}"</strong>{' '}
+              wird unwiderruflich entfernt — inklusive aller Erinnerungen und
+              Interview-Notizen.
+            </>
+          }
+          bestaetigenText="Löschen"
+          variante="destruktiv"
+          onAbbrechen={() => setLoeschenDialogOffen(false)}
+          onBestaetigen={handleLoeschenBestaetigt}
+        />
+      )}
+
       <header className="mb-4 flex items-center justify-between gap-3">
         <Link
           to="/"
@@ -201,7 +216,7 @@ export function BewerbungsDetail() {
           </Link>
           <button
             type="button"
-            onClick={handleLoeschen}
+            onClick={() => setLoeschenDialogOffen(true)}
             className="rounded-md border border-red-200 bg-white px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
           >
             Löschen

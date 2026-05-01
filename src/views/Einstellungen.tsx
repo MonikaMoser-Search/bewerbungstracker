@@ -27,6 +27,7 @@ import {
   diffBerechnen,
   type ImportDiff,
 } from '../components/BackupImportDialog';
+import { BestaetigungsDialog } from '../components/BestaetigungsDialog';
 
 type Dialog =
   | { typ: 'keiner' }
@@ -43,6 +44,8 @@ export function Einstellungen() {
   const [einstellungen, setEinstellungen] = useState<EinstellungenTyp | null>(null);
   const [meldung, setMeldung] = useState<{ typ: 'erfolg' | 'fehler'; text: string } | null>(null);
   const [dialog, setDialog] = useState<Dialog>({ typ: 'keiner' });
+  const [resetDialogOffen, setResetDialogOffen] = useState(false);
+  const [plainImportInhalt, setPlainImportInhalt] = useState<string | null>(null);
   const [notiStatus, setNotiStatus] = useState<NotificationStatus>('default');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const verschluesseltImportRef = useRef<HTMLInputElement>(null);
@@ -106,25 +109,27 @@ export function Einstellungen() {
     event.target.value = '';
     if (!file) return;
 
-    const bestaetigt = window.confirm(
-      'Beim Importieren werden alle aktuellen Bewerbungen ersetzt.\n\nFortfahren?'
-    );
-    if (!bestaetigt) return;
-
     const reader = new FileReader();
     reader.onload = () => {
-      try {
-        alleDatenImportieren(String(reader.result));
-        setMeldung({ typ: 'erfolg', text: 'Daten erfolgreich importiert.' });
-        setTimeout(() => window.location.reload(), 800);
-      } catch (err) {
-        setMeldung({
-          typ: 'fehler',
-          text: `Import fehlgeschlagen: ${err instanceof Error ? err.message : String(err)}`,
-        });
-      }
+      setPlainImportInhalt(String(reader.result));
     };
     reader.readAsText(file);
+  }
+
+  function handlePlainImportBestaetigt() {
+    if (!plainImportInhalt) return;
+    try {
+      alleDatenImportieren(plainImportInhalt);
+      setPlainImportInhalt(null);
+      setMeldung({ typ: 'erfolg', text: 'Daten erfolgreich importiert.' });
+      setTimeout(() => window.location.reload(), 800);
+    } catch (err) {
+      setPlainImportInhalt(null);
+      setMeldung({
+        typ: 'fehler',
+        text: `Import fehlgeschlagen: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
   }
 
   async function handleNotificationsAktivieren() {
@@ -145,11 +150,7 @@ export function Einstellungen() {
     }
   }
 
-  function handleZuruecksetzen() {
-    const bestaetigt = window.confirm(
-      'Alle Bewerbungen werden gelöscht und die Demo-Daten neu geladen.\n\nDieser Schritt kann nicht rückgängig gemacht werden. Fortfahren?'
-    );
-    if (!bestaetigt) return;
+  function handleZuruecksetzenBestaetigt() {
     alleDatenZuruecksetzen();
     window.location.reload();
   }
@@ -371,7 +372,7 @@ export function Einstellungen() {
           </button>
           <button
             type="button"
-            onClick={handleZuruecksetzen}
+            onClick={() => setResetDialogOffen(true)}
             className="rounded-md border border-red-200 bg-white px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
           >
             Auf Demo-Stand zurücksetzen
@@ -516,6 +517,39 @@ export function Einstellungen() {
           diff={dialog.diff}
           onAbbrechen={() => setDialog({ typ: 'keiner' })}
           onBestaetigen={handleImportBestaetigt}
+        />
+      )}
+
+      {resetDialogOffen && (
+        <BestaetigungsDialog
+          titel="Auf Demo-Stand zurücksetzen?"
+          beschreibung={
+            <>
+              Alle deine Bewerbungen werden gelöscht und die Beispiel-Bewerbungen
+              neu geladen. <strong>Dieser Schritt kann nicht rückgängig gemacht werden</strong> —
+              erstelle vorher ein Backup, falls du deine aktuellen Daten behalten willst.
+            </>
+          }
+          bestaetigenText="Zurücksetzen"
+          variante="destruktiv"
+          onAbbrechen={() => setResetDialogOffen(false)}
+          onBestaetigen={handleZuruecksetzenBestaetigt}
+        />
+      )}
+
+      {plainImportInhalt !== null && (
+        <BestaetigungsDialog
+          titel="Daten importieren?"
+          beschreibung={
+            <>
+              Beim Importieren werden <strong>alle aktuellen Bewerbungen ersetzt</strong>.
+              Falls du sie behalten möchtest, erstelle vorher ein Backup.
+            </>
+          }
+          bestaetigenText="Importieren"
+          variante="destruktiv"
+          onAbbrechen={() => setPlainImportInhalt(null)}
+          onBestaetigen={handlePlainImportBestaetigt}
         />
       )}
     </div>
