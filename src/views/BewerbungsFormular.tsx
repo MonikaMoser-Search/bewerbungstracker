@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Status } from '../types';
 import { ALLE_STATUS } from '../types';
 import type { NeueBewerbungEingabe } from '../data/storage';
+import { parseJobTitel } from '../lib/jobTitelParser';
 
 export type FormularModus = 'erstellen' | 'bearbeiten';
 
@@ -35,6 +36,24 @@ export function BewerbungsFormular({
   const [notizen, setNotizen] = useState(initialwerte.notizen);
 
   const [versucht, setVersucht] = useState(false);
+  const [schnellText, setSchnellText] = useState('');
+  const [erkannt, setErkannt] = useState<{ position?: string; firma?: string } | null>(null);
+
+  function handleSchnellEingabe(text: string) {
+    setSchnellText(text);
+    if (!text.trim()) {
+      setErkannt(null);
+      return;
+    }
+    const result = parseJobTitel(text);
+    if (result.position || result.firma) {
+      if (result.position) setPosition(result.position);
+      if (result.firma) setFirma(result.firma);
+      setErkannt(result);
+    } else {
+      setErkannt(null);
+    }
+  }
 
   const firmaFehler = versucht && firma.trim() === '';
   const positionFehler = versucht && position.trim() === '';
@@ -86,6 +105,43 @@ export function BewerbungsFormular({
         </p>
       )}
       {modus === 'bearbeiten' && <div className="mb-6" />}
+
+      {modus === 'erstellen' && (
+        <section className="bg-mm-cream-soft border border-mm-orange/30 rounded-lg p-4 mb-5">
+          <label className="block">
+            <span className="text-xs font-medium text-mm-orange-dark uppercase tracking-wide">
+              Schnell-Erfassung — optional
+            </span>
+            <p className="text-xs text-stone-600 mt-1 mb-2 leading-relaxed">
+              Kopiere die Stellen-Überschrift (z. B. von StepStone, Indeed,
+              LinkedIn, Xing) hier rein — wir versuchen, Firma und Position
+              automatisch zu erkennen. Du kannst sie unten korrigieren.
+            </p>
+            <textarea
+              value={schnellText}
+              onChange={(e) => handleSchnellEingabe(e.target.value)}
+              placeholder="z. B. Senior Risk Manager (m/w/d) - Stadtsparkasse München - StepStone"
+              rows={2}
+              className="block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-mm-orange/40 resize-y"
+            />
+          </label>
+          {erkannt && (erkannt.position || erkannt.firma) && (
+            <div className="text-xs text-stone-700 mt-2 leading-relaxed">
+              ✓ Erkannt:{' '}
+              {erkannt.position && (
+                <strong className="text-mm-brown">{erkannt.position}</strong>
+              )}
+              {erkannt.position && erkannt.firma && <> bei </>}
+              {erkannt.firma && (
+                <strong className="text-mm-brown">{erkannt.firma}</strong>
+              )}
+              <span className="text-stone-500">
+                {' '}— prüfe die Felder unten und korrigiere bei Bedarf.
+              </span>
+            </div>
+          )}
+        </section>
+      )}
 
       <form onSubmit={handleSpeichern} className="space-y-5" noValidate>
         <section className="bg-white rounded-lg border border-stone-200 p-5 space-y-4">
